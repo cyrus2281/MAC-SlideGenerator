@@ -14,8 +14,16 @@ pip install -r requirements.txt
 
 - Note: on windows, use `env\Scripts\activate` instead of `source env/bin/activate`
 
+Create a `.env` file in the root directory and add the following:
+
+```bash
+OPENAI_API_KEY=Your_OpenAI_API_Key
+SERP_API_KEY=Your_Serp_API_Key
+```
+
 ## Agents Architecture
 
+```
 1) Planner
 1.1) BrainStrommer (self-refine)
    1.1.1) web searcher 
@@ -27,3 +35,4 @@ pip install -r requirements.txt
 1.3.1) PowerPoint Maker
 1.3.2) Audio Generator
 1.3.3) Video Maker
+```
