@@ -6,6 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
 import logging
+import math
 
 # Disable logging from selenium
 logging.getLogger('selenium').setLevel(logging.CRITICAL)
@@ -104,10 +105,12 @@ def extract_webpage_contents(url, max_length=2500):
     # Parse the page source with BeautifulSoup
     soup = BeautifulSoup(page_source, 'html.parser')
     
-    # return the top 3 biggest sorted elements (contentText length)
+    # return the top biggest sorted elements (contentText length)
     # excluding the script and style tags
     content = [element.get_text() for element in soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'span'])]
-    content = sorted(content, key=lambda x: len(x), reverse=True)[:3]
+    tem_sort_content = sorted(content, key=lambda x: len(x), reverse=True)[:10]
+    # sort the results by their index in the original content
+    content = sorted(tem_sort_content, key=lambda x: content.index(x))
     # replace all \n with space and trim the text
     content = '\n'.join([text.replace('\n', ' ').strip() for text in content])
     # slice the content to max_length

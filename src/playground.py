@@ -12,7 +12,7 @@ if not os.path.exists('temp'):
 
 demo = {
     "serp_mock": True,
-    "web_utils": True,
+    "web_utils": False,
     "audio_utils": False,
     "image_utils": False,
     "video_utils": False,
