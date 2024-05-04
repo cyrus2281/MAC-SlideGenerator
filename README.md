@@ -2,6 +2,10 @@
 
 Multi-Agent Collaboration voice-overed Slide Generator demo application
 
+## Architecture
+
+![Architecture](./Architecture.png)
+
 ## Getting Started
 
 Create a virtual environment and install the required packages:
@@ -19,6 +23,9 @@ Create a `.env` file in the root directory and add the following:
 ```bash
 OPENAI_API_KEY=Your_OpenAI_API_Key
 SERP_API_KEY=Your_Serp_API_Key
+LANGCHAIN_API_KEY=Your_LangChain_API_Key
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_PROJECT="Multi-agent Collaboration"
 ```
 
 ## Agents Architecture

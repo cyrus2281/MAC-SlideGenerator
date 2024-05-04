@@ -1,3 +1,4 @@
+from typing import List
 import requests
 import os
 from dotenv import load_dotenv
@@ -19,7 +20,7 @@ load_dotenv()
 # Access environment variables
 SERP_API_KEY = os.getenv("SERP_API_KEY")
 
-def search_google_scholar(query, n_results=4):
+def search_google_scholar(query, n_results=4)-> List[dict]:    
     search_url = "https://serpapi.com/search"
     params = {
         "engine": "google_scholar",
@@ -88,31 +89,35 @@ chrome_options.add_argument("--headless")  # To run Chrome in headless mode (wit
 
 
 def extract_webpage_contents(url, max_length=2500):
-    driver = webdriver.Chrome(options=chrome_options)
-    
-    # Load the page with dynamic content
-    driver.get(url)
-    
-    # Wait for JavaScript to render content (adjust the sleep time as needed)
-    time.sleep(3)
-    
-    # Get page source after JavaScript rendering
-    page_source = driver.page_source
-    
-    # Close the webdriver
-    driver.quit()
-    
-    # Parse the page source with BeautifulSoup
-    soup = BeautifulSoup(page_source, 'html.parser')
-    
-    # return the top biggest sorted elements (contentText length)
-    # excluding the script and style tags
-    content = [element.get_text() for element in soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'span'])]
-    tem_sort_content = sorted(content, key=lambda x: len(x), reverse=True)[:10]
-    # sort the results by their index in the original content
-    content = sorted(tem_sort_content, key=lambda x: content.index(x))
-    # replace all \n with space and trim the text
-    content = '\n'.join([text.replace('\n', ' ').strip() for text in content])
-    # slice the content to max_length
-    content = content[:max_length]    
-    return content
+    try:
+        driver = webdriver.Chrome(options=chrome_options)
+        
+        # Load the page with dynamic content
+        driver.get(url)
+        
+        # Wait for JavaScript to render content (adjust the sleep time as needed)
+        time.sleep(3)
+        
+        # Get page source after JavaScript rendering
+        page_source = driver.page_source
+        
+        # Close the webdriver
+        driver.quit()
+        
+        # Parse the page source with BeautifulSoup
+        soup = BeautifulSoup(page_source, 'html.parser')
+        
+        # return the top biggest sorted elements (contentText length)
+        # excluding the script and style tags
+        content = [element.get_text() for element in soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'span'])]
+        tem_sort_content = sorted(content, key=lambda x: len(x), reverse=True)[:10]
+        # sort the results by their index in the original content
+        content = sorted(tem_sort_content, key=lambda x: content.index(x))
+        # replace all \n with space and trim the text
+        content = '\n'.join([text.replace('\n', ' ').strip() for text in content])
+        # slice the content to max_length
+        content = content[:max_length]    
+        return content
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return ""
