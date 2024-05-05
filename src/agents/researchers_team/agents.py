@@ -10,7 +10,7 @@ from langgraph.graph import END, StateGraph
 import functools
 
 from agents.agent import agent_node, create_agent
-from agents.researcher_team.tools import scrape_webpage, search_google
+from agents.researchers_team.tools import scrape_webpage, search_google
 from utilities.utils import save_draft
 
 

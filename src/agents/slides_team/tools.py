@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated, List
 from langchain_core.tools import tool
 from utilities.utils import generate_unique_filename
 from utilities.web_utils import (
@@ -23,5 +23,5 @@ def download_image(
     image_url: Annotated[str, "The URL of the image to download"]
 ) -> Annotated[str, "The path where the image was saved"]:
     """Downloads the specified image from the URL to the specified path"""
-    image_path = generate_unique_filename("image", "png", "img")
+    image_path = generate_unique_filename("image", "png", "imgs")
     return download_image_util(image_url, image_path)

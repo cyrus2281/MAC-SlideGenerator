@@ -13,10 +13,10 @@ def save_draft(
         file.write(content)
 
 
-project_space = ""
+project_space = "temp"
 
 
-def set_project_space(directory: str = "tmp"):
+def set_project_space(directory: str = "temp"):
     """Set the project space."""
     if not os.path.exists(directory):
         os.makedirs(directory)

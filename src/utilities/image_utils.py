@@ -8,8 +8,12 @@ def resize_image(size, image_path, output_path):
             output_path = image_path
         # Open the image file
         image = Image.open(image_path)
-        # Resize the image
-        resized_image = image.resize(size)
+        # Resize the image by adding white padding
+        resized_image = Image.new("RGB", size, (255, 255, 255))
+        # Calculate the position to paste the image
+        position = ((size[0] - image.width) // 2, (size[1] - image.height) // 2)
+        # Paste the image on the resized image
+        resized_image.paste(image, position)
         # write to given file 
         resized_image.save(output_path)
     except Exception as e:
