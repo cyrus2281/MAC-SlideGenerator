@@ -38,6 +38,7 @@ image_finder_agent = create_agent(
     "\n3. return the following prompt: "
     "\n ```Here is the image you requested: \"[image path from tool]\"."
     "\n Reply with \"FIND_IMAGE: your topic\" to search for more images.```"
+    "\nFor following topic you must first search and then you must download one image:"
 )
 image_finder_node = functools.partial(
     agent_node, agent=image_finder_agent, name="ImageFinder"
@@ -50,7 +51,6 @@ slide_planner_agent = create_agent(
     "You are a PowerPoint slide planner. You're responsible for converting the given "
     "article into slides for PowerPoint, send your output in a JSON format. An array of slides with the following keys for each element:"
     "\n- type: 'text' or 'image'"
-    # "\n- content: 'if type is text, write 3 to 4 lines of content in markdown format (Use titles and bullet points), if type is image, only enter the image path'"
     "\n- content: '3 to 4 lines of content in markdown format (Use titles and bullet points) if type is text, or image path if type is image'"
     "\n- note: 'What should the presenter say for this slide. Must be related to the article. (4 to 8 sentences)'"
     "\nCreate between 5 to 7 slides (At least 2 image slides). plus introduction and conclusion pages.\n"
@@ -61,7 +61,8 @@ slide_planner_agent = create_agent(
     "\n2. Repeat the process until you have all the images you need. You MUST at least use 'FIND_IMAGE' for 2 images."
     "\n3. Convert article to JSON format. Ensure each entry has the keys 'type', 'content', and 'note'."
     "\n4. Expand on any points that need further explanation using your own knowledge. Ensure there are 7 to 9 slides in total."
-    "\n5. Return ONLY the JSON formatted slides.",
+    "\n5. Return ONLY the JSON formatted slides."
+    "\nGiven the following article, first find images for the slides, then convert the article into slides:"
 )
 
 slide_planner_agent = functools.partial(

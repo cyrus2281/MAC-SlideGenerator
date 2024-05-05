@@ -5,6 +5,14 @@ from utilities.utils import set_project_space
 
 load_dotenv()
 
+OPENAI_GPT_MODEL_NAME = "gpt-3.5-turbo-0125"
+# OPENAI_GPT_MODEL_NAME="gpt-3.5-turbo-1106"
+# OPENAI_GPT_MODEL_NAME="gpt-4-0125-preview"
+# OPENAI_GPT_MODEL_NAME="gpt-4-32k-0613"
+
+os.environ["OPENAI_GPT_MODEL_NAME"] = OPENAI_GPT_MODEL_NAME
+os.environ["USE_OPENAI_FOR_TEXT_TO_AUDIO"] = "True"
+
 # Setting up project
 project_id = int(time.time())
 project_space = os.path.join("temp", f"project_{project_id}")
@@ -13,7 +21,7 @@ print("Project ID:", project_id)
 print("Project Space:", project_space)
 print("Using the model:", os.getenv("OPENAI_GPT_MODEL_NAME"))
 
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
+from langchain_core.messages import BaseMessage, HumanMessage
 from langchain_openai.chat_models import ChatOpenAI
 from langgraph.graph import END, StateGraph
 from typing_extensions import TypedDict
@@ -31,16 +39,16 @@ llm = ChatOpenAI(model=os.getenv("OPENAI_GPT_MODEL_NAME"))
 supervisor_node = create_team_supervisor(
     llm,
     "You are a supervisor tasked with managing the flow between the following teams: "
-    "\n - \"Researchers team\". Given the topic, this team will research and write an article."
-    "\n - \"Slides team\". Given the article, this team will find images and rewrite the article in JSON formatted slides."
-    "\n - \"Presenters team\": Given the JSON formatted slides, this team will create a video presentation."
+    '\n - "Researchers team". Given the topic, this team will research and write an article.'
+    '\n - "Slides team". Given the article, this team will find images and rewrite the article in JSON formatted slides.'
+    '\n - "Presenters team": Given the JSON formatted slides, this team will create a video presentation.'
     "\nThe goal is to create a video presentation on the given topic. "
     "\nThe normal flow, unless otherwise specified by the user, must follow:"
     "\nResearchers team -> Slides team -> Presenters team"
     "\nWhen finished, respond with FINISH."
     "\nAvoid calling the same team twice unless necessary."
     "\n\nGiven the following topic, respond with the team to act next. ",
-    ["Researchers team", "Slides team", "Presenters team"]
+    ["Researchers team", "Slides team", "Presenters team"],
 )
 
 
@@ -63,7 +71,9 @@ super_graph = StateGraph(State)
 # First add the nodes, which will do the work
 super_graph.add_node("Researchers team", get_last_message | research_chain | join_graph)
 super_graph.add_node("Slides team", get_last_message | slides_chain | join_graph)
-super_graph.add_node("Presenters team", get_last_message | presenters_chain | join_graph)
+super_graph.add_node(
+    "Presenters team", get_last_message | presenters_chain | join_graph
+)
 super_graph.add_node("supervisor", supervisor_node)
 
 # Define the graph connections, which controls how the logic
@@ -85,12 +95,19 @@ super_graph.add_conditional_edges(
 super_graph.set_entry_point("supervisor")
 super_graph = super_graph.compile()
 
-for s in super_graph.stream(
-    {
-        "messages": [HumanMessage(content="Effects of coffee on body")],
-    },
-    {"recursion_limit": 50},
-):
-    if "__end__" not in s:
-        print(s)
-        print("---")
+# Getting input from console in a while loop till users enters "exit"
+while True:
+    user_input = input("Enter the topic: ").strip()
+    if not user_input:
+        continue
+    if user_input == "exit":
+        break
+    for s in super_graph.stream(
+        {
+            "messages": [HumanMessage(content=user_input)],
+        },
+        {"recursion_limit": 50},
+    ):
+        if "__end__" not in s:
+            print(s)
+            print("---")
