@@ -45,21 +45,21 @@ presentation_planner_agent = create_agent(
 )
 
 
-def presentation_planner_node(state):
-    response = presentation_planner_agent.invoke(state)
-    return {"messages": [response]}
-
+presentation_planner_node = functools.partial(agent_node, agent=presentation_planner_agent, name="PresentationPlanner")
 
 # Define the function that determines whether to continue or not
 def should_continue(state):
     messages = state["messages"]
     last_message = messages[-1]
-    # If there are no tool calls, then we finish
-    if not last_message.get('tool_calls'):
+    try:
+        # If there are no tool calls, then we finish
+        if not last_message.get('tool_calls'):
+            return "end"
+        # Otherwise if there is, we continue
+        else:
+            return "continue"
+    except Exception:
         return "end"
-    # Otherwise if there is, we continue
-    else:
-        return "continue"
 
 
 presenters_graph = StateGraph(PresentersTeamState)

@@ -71,7 +71,9 @@ def create_team_supervisor(llm: ChatOpenAI, system_prompt, members) -> str:
             (
                 "system",
                 "Given the conversation above, who should act next?"
-                " Or should we FINISH? Select one of: {options}",
+                " Or should we FINISH? Select one of: {options}"
+                "\nFollow the normal flow unless otherwise specified by the user. (DO NOT CALL THE SAME TEAM TWICE IN A ROW)"
+                "\nResearchers team -> Slides team -> Presenters team"
             ),
         ]
     ).partial(options=str(options), team_members=", ".join(members))
