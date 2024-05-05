@@ -2,8 +2,7 @@ if __name__ != "__main__":
     assert False, "This module is for testing purposes only"
 
 import os
-from utilities.slide_utils import render_markdown_to_image
-from utilities.image_utils import resize_directory_images
+from utilities.slide_utils import render_image_inside_html, render_markdown_to_image
 from utilities.video_utils import create_voice_overed_slide, merge_videos
 from utilities.audio_utils import text_to_audio
 from utilities.web_utils import (
@@ -21,7 +20,6 @@ demo = {
     "web_utils": False,
     "audio_utils": False,
     "slide_utils": False,
-    "image_utils": False,
     "video_utils": False,
 }
 
@@ -78,10 +76,6 @@ if demo["web_utils"]:
     print("Running download_image example 3")
     download_image(image_search[2]["url"], "temp/imgs/test_image_3.jpg")
 
-if demo["image_utils"]:
-    print("Running resize_directory_images")
-    resize_directory_images((720, 720), "temp", "temp/imgs")
-
 if demo["audio_utils"]:
     print("Running text_to_audio example 1")
     text_to_audio(
@@ -104,6 +98,9 @@ if demo["slide_utils"]:
 
     print("Running render_markdown_to_image")
     render_markdown_to_image(markdown_text, "temp/imgs/markdown_1.png")
+    
+    print("Running render_markdown_to_image")
+    render_image_inside_html("temp/imgs/test_image_1.jpg", "temp/imgs/image_html_1.png")
 
 if demo["video_utils"]:
     print("Running create_voice_overed_slide example 1")

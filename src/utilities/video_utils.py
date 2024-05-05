@@ -24,7 +24,6 @@ def merge_videos(videos_list, output_video):
         video_clip = VideoFileClip(video_path)
         # Append the video clip to the list
         video_clips.append(video_clip)
-        video_clip.write_videofile(video_path+"-1.mp4", fps=12, logger=None, audio_codec='libvorbis')
     
     # Concatenate the video clips into a single video
     final_clip = concatenate_videoclips(video_clips)
