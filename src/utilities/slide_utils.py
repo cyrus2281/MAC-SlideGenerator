@@ -9,11 +9,16 @@ from utilities.utils import generate_unique_id
 def render_markdown_to_image(markdown_text, output_image_path, size=(720, 480)):
     # Parse Markdown text
     html_text = markdown.markdown(markdown_text).replace("\n", "<br>")
+    html_text = f"<div>{html_text}</div>"
+    watermark = os.getenv("SLIDES_WATERMARK")
+    if (watermark):
+        html_text = f"{html_text}<div id=\"watermark\">{watermark}</div>"
     # Convert HTML to image    
     hti = Html2Image()
     css = '''body {
         background: white; 
-        padding: 10px 5px; 
+        height: 90%;
+        padding: 5px; 
         text-align: left;
         display: flex;
         flex-direction: column;
@@ -21,7 +26,17 @@ def render_markdown_to_image(markdown_text, output_image_path, size=(720, 480)):
         align-items: center;
         font-size: 1.4rem;
         font-family: Arial, sans-serif;
-        }'''
+        }
+        #watermark {
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            padding: 5px; 
+            background: white; 
+            color: black; 
+            font-size: 1rem;
+        }
+        '''
     temp_loc = generate_unique_id() + ".png"
     hti.screenshot(html_str=html_text, save_as=temp_loc, css_str=css, size=size)
     # Move the file to the output location - force overwrite
@@ -41,6 +56,9 @@ def render_image_inside_html(image_path, output_path, size=(720, 480)):
     image_base64 = f"data:image/png;base64,{image_base64}"
     # Create the HTML content with the image
     html_content = f'<img src="{image_base64}" alt="Image" />'
+    watermark = os.getenv("SLIDES_WATERMARK")
+    if (watermark):
+        html_content = f"{html_content}<div id=\"watermark\">{watermark}</div>"
     css = """
     body {
         background: red;
@@ -53,6 +71,15 @@ def render_image_inside_html(image_path, output_path, size=(720, 480)):
     img {
         width: 100%;
         height: 100%;
+    }
+    #watermark {
+        position: absolute; 
+        bottom: 0; 
+        left: 0; 
+        padding: 5px; 
+        background: white; 
+        color: black; 
+        font-size: 1rem;
     }
     """
     temp_loc = generate_unique_id() + ".png"

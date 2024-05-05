@@ -36,10 +36,10 @@ researcher_agent = create_agent(
     "\n1. Use google search tool to get information about the given topic."
     "\n2. use the tool to scrape webpages for more detailed information."
     "\n3. repeat if needed."
-    "\n4. if the returned information is not clear, use your own knowledge to fill the gaps."
+    "\n4. if the returned information is not clear, use your own knowledge to fill the gaps.",
 )
 researcher_node = functools.partial(
-    agent_node, agent=researcher_agent, name="Researcher"
+    agent_node, agent=researcher_agent, name="Researcher", team="Researchers team"
 )
 
 # Writer agent
@@ -50,9 +50,11 @@ writer_agent = create_agent(
     "\n1. You must ask the researcher assistant to get detailed information "
     'about a topic by replying "RESEARCH: the topic you want to know more about".'
     "\n2. Write an article of 700~1000 words on the given topic. Make sure to explain in details."
-    "\n3. Double-check your work and make sure it's ready for publication."
+    "\n3. Double-check your work and make sure it's ready for publication.",
 )
-writer_node = functools.partial(agent_node, agent=writer_agent, name="Writer")
+writer_node = functools.partial(
+    agent_node, agent=writer_agent, name="Writer", team="Researchers team"
+)
 
 
 def writer_researcher_edge_condition(state):

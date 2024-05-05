@@ -1,6 +1,6 @@
 # MAC-SlideGenerator
 
-Multi-Agent Collaboration Voice-overed Slide Generator - DEMO Application.
+Multi-Agent Collaboration: Voice-overed video slide generator - Demo application
 
 ## Architecture
 

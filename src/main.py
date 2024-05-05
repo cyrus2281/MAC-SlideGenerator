@@ -12,6 +12,7 @@ OPENAI_GPT_MODEL_NAME = "gpt-3.5-turbo-0125"
 
 os.environ["OPENAI_GPT_MODEL_NAME"] = OPENAI_GPT_MODEL_NAME
 os.environ["USE_OPENAI_FOR_TEXT_TO_AUDIO"] = "True"
+os.environ["SLIDES_WATERMARK"] = "MLC-Slide-Generator by Cyrus Mobini"
 
 # Setting up project
 project_id = int(time.time())
@@ -21,11 +22,11 @@ print("Project ID:", project_id)
 print("Project Space:", project_space)
 print("Using the model:", os.getenv("OPENAI_GPT_MODEL_NAME"))
 
-from langchain_core.messages import BaseMessage, HumanMessage
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langchain_openai.chat_models import ChatOpenAI
 from langgraph.graph import END, StateGraph
 from typing_extensions import TypedDict
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 import operator
 
 from agents.agent import create_team_supervisor
@@ -56,6 +57,7 @@ supervisor_node = create_team_supervisor(
 class State(TypedDict):
     messages: Annotated[List[BaseMessage], operator.add]
     next: str
+    previous_agent: Optional[str]
 
 
 def get_last_message(state: State) -> str:
@@ -69,26 +71,26 @@ def join_graph(response: dict):
 # Define the graph.
 super_graph = StateGraph(State)
 # First add the nodes, which will do the work
-super_graph.add_node("Researchers team", get_last_message | research_chain | join_graph)
-super_graph.add_node("Slides team", get_last_message | slides_chain | join_graph)
+super_graph.add_node("Researchers_team", get_last_message | research_chain | join_graph)
+super_graph.add_node("Slides_team", get_last_message | slides_chain | join_graph)
 super_graph.add_node(
-    "Presenters team", get_last_message | presenters_chain | join_graph
+    "Presenters_team", get_last_message | presenters_chain | join_graph
 )
 super_graph.add_node("supervisor", supervisor_node)
 
 # Define the graph connections, which controls how the logic
 # propagates through the program
-super_graph.add_edge("Researchers team", "supervisor")
-super_graph.add_edge("Slides team", "supervisor")
-super_graph.add_edge("Presenters team", "supervisor")
+super_graph.add_edge("Researchers_team", "supervisor")
+super_graph.add_edge("Slides_team", "supervisor")
+super_graph.add_edge("Presenters_team", "supervisor")
 
 super_graph.add_conditional_edges(
     "supervisor",
     lambda x: x["next"],
     {
-        "Researchers team": "Researchers team",
-        "Slides team": "Slides team",
-        "Presenters team": "Presenters team",
+        "Researchers team": "Researchers_team",
+        "Slides team": "Slides_team",
+        "Presenters team": "Presenters_team",
         "FINISH": END,
     },
 )
@@ -96,18 +98,33 @@ super_graph.set_entry_point("supervisor")
 super_graph = super_graph.compile()
 
 # Getting input from console in a while loop till users enters "exit"
+prompt = "\nEnter the topic: "
+messages = []
 while True:
-    user_input = input("Enter the topic: ").strip()
+    user_input = input(prompt).strip()
     if not user_input:
         continue
     if user_input == "exit":
         break
-    for s in super_graph.stream(
+    messages.append(HumanMessage(content=user_input))
+    for state in super_graph.stream(
         {
-            "messages": [HumanMessage(content=user_input)],
+            "messages": messages,
         },
         {"recursion_limit": 50},
     ):
-        if "__end__" not in s:
-            print(s)
-            print("---")
+        if "__end__" not in state:
+            print("-----")
+            print(state)
+
+            if "Researchers_team" in state:
+                msg = state["Researchers_team"]["messages"][0].content
+                messages.append(AIMessage(content=msg, name="Researchers_team"))
+            elif "Slides_team" in state:
+                msg = state["Slides_team"]["messages"][0].content
+                messages.append(AIMessage(content=msg, name="Slides_team"))
+            elif "Presenters_team" in state:
+                msg = state["Presenters_team"]["messages"][0].content
+                messages.append(AIMessage(content=msg, name="Presenters_team"))
+
+            prompt = "Ask a follow-up request: (Type 'exit' to leave program) "

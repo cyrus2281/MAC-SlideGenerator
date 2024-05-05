@@ -41,7 +41,7 @@ image_finder_agent = create_agent(
     "\nFor following topic you must first search and then you must download one image:"
 )
 image_finder_node = functools.partial(
-    agent_node, agent=image_finder_agent, name="ImageFinder"
+    agent_node, agent=image_finder_agent, name="ImageFinder", team="Slides team"
 )
 
 # Slide Planner agent
@@ -66,7 +66,7 @@ slide_planner_agent = create_agent(
 )
 
 slide_planner_agent = functools.partial(
-    agent_node, agent=slide_planner_agent, name="SlidePlanner"
+    agent_node, agent=slide_planner_agent, name="SlidePlanner", team="Slides team"
 )
 
 

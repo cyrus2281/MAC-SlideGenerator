@@ -45,7 +45,7 @@ presentation_planner_agent = create_agent(
 )
 
 
-presentation_planner_node = functools.partial(agent_node, agent=presentation_planner_agent, name="PresentationPlanner")
+presentation_planner_node = functools.partial(agent_node, agent=presentation_planner_agent, name="PresentationPlanner", team="Presenters team")
 
 # Define the function that determines whether to continue or not
 def should_continue(state):

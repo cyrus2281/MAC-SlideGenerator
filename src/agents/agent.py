@@ -1,9 +1,13 @@
-from langchain.agents import AgentExecutor, create_openai_functions_agent, create_structured_chat_agent
+from langchain.agents import (
+    AgentExecutor,
+    create_openai_functions_agent,
+)
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import BaseTool
 from langchain_openai import ChatOpenAI
+
 
 def create_agent(
     llm: ChatOpenAI,
@@ -36,12 +40,16 @@ def create_agent(
             ]
         )
         return prompt | llm
-        
 
-def agent_node(state, agent, name):
+
+def agent_node(state, agent, name, team):
     result = agent.invoke(state)
     content = result["output"] if "output" in result else result.content
-    return {"messages": [HumanMessage(content=content, name=name)]}
+    return {
+        "messages": [
+            HumanMessage(content=content, name=name, additional_kwargs={"team": team})
+        ]
+    }
 
 
 def create_team_supervisor(llm: ChatOpenAI, system_prompt, members) -> str:
@@ -74,11 +82,21 @@ def create_team_supervisor(llm: ChatOpenAI, system_prompt, members) -> str:
                 " Or should we FINISH? Select one of: {options}"
                 "\nFollow the normal flow unless otherwise specified by the user. (DO NOT CALL THE SAME TEAM TWICE IN A ROW)"
                 "\nResearchers team -> Slides team -> Presenters team"
+                "{previous_team}",
             ),
         ]
     ).partial(options=str(options), team_members=", ".join(members))
-    return (
-        prompt
-        | llm.bind_functions(functions=[function_def], function_call="route")
-        | JsonOutputFunctionsParser()
-    )
+
+    def supervisor_node(state):
+        last_team = state["messages"][-1].additional_kwargs.get("team", "")
+        previous_team = ""
+        if last_team:
+            previous_team = "\n\nLast team was: " + last_team
+        state["previous_team"] = previous_team
+        return (
+            prompt
+            | llm.bind_functions(functions=[function_def], function_call="route")
+            | JsonOutputFunctionsParser()
+        )
+
+    return supervisor_node
