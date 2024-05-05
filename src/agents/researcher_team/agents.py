@@ -11,6 +11,7 @@ import functools
 
 from agents.agent import agent_node, create_agent
 from agents.researcher_team.tools import scrape_webpage, search_google
+from utilities.utils import save_draft
 
 
 # Research team graph state
@@ -25,14 +26,14 @@ class ResearchTeamState(TypedDict):
     next: str
 
 
-llm = ChatOpenAI(model=os.getenv("OPENAI_GPT_MODEL_NAME"))
+llm = ChatOpenAI(model=os.getenv("OPENAI_GPT_MODEL_NAME"), max_tokens=2500)
 
 # Researcher agent
 researcher_agent = create_agent(
     llm,
     [scrape_webpage, search_google],
     "You are a research assistant. Follow these steps sequentially:"
-    "\n1. Use search google scholar tool to get  information about the given topic."
+    "\n1. Use google search tool to get information about the given topic."
     "\n2. use the tool to scrape webpages for more detailed information."
     "\n3. repeat if needed."
     "\n4. if the returned information is not clear, use your own knowledge to fill the gaps."
@@ -48,7 +49,7 @@ writer_agent = create_agent(
     "You are a article writer assistant working in a team of researchers. Follow these steps sequentially:"
     "\n1. You must ask the researcher assistant to get detailed information "
     'about a topic by replying "RESEARCH: the topic you want to know more about".'
-    "\n2. Write an article of 700~1000 words on the given topic"
+    "\n2. Write an article of 700~1000 words on the given topic. Make sure to explain in details."
     "\n3. Double-check your work and make sure it's ready for publication."
 )
 writer_node = functools.partial(agent_node, agent=writer_agent, name="Writer")
@@ -62,6 +63,8 @@ def writer_researcher_edge_condition(state):
         return "Researcher"
     # Otherwise, return the value
     else:
+        # Saving draft
+        save_draft(last_message.content, "article")
         return "end"
 
 

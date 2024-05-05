@@ -1,6 +1,6 @@
 from typing import Annotated, List, Optional
 from langchain_core.tools import tool
-from utilities.web_utils import extract_webpage_contents, search_google_scholar
+from utilities.web_utils import extract_webpage_contents, search_google
 
 
 @tool
@@ -12,7 +12,7 @@ def search_google(
     "A list of dictionaries containing the top search results with keys 'title', 'snippet', and 'link'",
 ]:
     """Searches Google for the specified query and returns the top search results"""
-    return search_google_scholar(query, n_results)
+    return search_google(query, n_results)
 
 
 @tool
