@@ -2,6 +2,7 @@ if __name__ != "__main__":
     assert False, "This module is for testing purposes only"
 
 import os
+from dotenv import load_dotenv
 from utilities.slide_utils import render_image_inside_html, render_markdown_to_image
 from utilities.video_utils import create_voice_overed_slide, merge_videos
 from utilities.audio_utils import text_to_audio
@@ -12,6 +13,9 @@ from utilities.web_utils import (
     extract_webpage_contents,
 )
 
+# Load .env file
+load_dotenv()
+
 if not os.path.exists("temp"):
     os.makedirs("temp")
 
@@ -19,13 +23,13 @@ demo = {
     "serp_mock": True,
     "web_utils": False,
     "audio_utils": False,
-    "slide_utils": True,
+    "slide_utils": False,
     "video_utils": False,
 }
 
 if demo["web_utils"]:
-    print("Running search_google")
     if not demo["serp_mock"]:
+        print("Running search_google")
         search_results = search_google("LLMs Multi Agent Collaboration", 3)
     else:
         search_results = [
@@ -47,11 +51,11 @@ if demo["web_utils"]:
         ]
 
     print("Running extract_webpage_contents")
-    content = extract_webpage_contents(search_results[1]["link"])
+    content = extract_webpage_contents(search_results[2]["link"])
     print("Extracted Content", content)
 
-    print("Running search_google_images")
     if not demo["serp_mock"]:
+        print("Running search_google_images")
         image_search = search_google_images("LLMs Multi Agent Collaboration", 3)
     else:
         image_search = [

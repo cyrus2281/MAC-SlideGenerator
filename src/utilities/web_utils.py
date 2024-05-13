@@ -1,25 +1,9 @@
 from typing import List
 import requests
 import os
-from dotenv import load_dotenv
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-import time
-import logging
-import math
-
-# Disable logging from selenium
-logging.getLogger("selenium").setLevel(logging.CRITICAL)
-# Turn off driver logging
-logging.getLogger("webdriver_manager").setLevel(logging.CRITICAL)
-
-# Load .env file
-load_dotenv()
 
 # Access environment variables
 SERP_API_KEY = os.getenv("SERP_API_KEY")
-
 
 def search_google(query, n_results=5) -> List[dict]:
     search_url = "https://serpapi.com/search"
@@ -87,48 +71,23 @@ def download_image(image_url, save_path):
         return "An error occurred while downloading the image."
 
 
-# Initialize Selenium webdriver with Chrome
-chrome_options = Options()
-chrome_options.add_argument(
-    "--headless"
-)  # To run Chrome in headless mode (without opening GUI)
-
-
-def extract_webpage_contents(url, max_length=2500):
+jina_base_url = "https://r.jina.ai/"
+def extract_webpage_contents(url: str, max_length: int = 3500) -> str:
     try:
-        driver = webdriver.Chrome(options=chrome_options)
-
-        # Load the page with dynamic content
-        driver.get(url)
-
-        # Wait for JavaScript to render content (adjust the sleep time as needed)
-        time.sleep(3)
-
-        # Get page source after JavaScript rendering
-        page_source = driver.page_source
-
-        # Close the webdriver
-        driver.quit()
-
-        # Parse the page source with BeautifulSoup
-        soup = BeautifulSoup(page_source, "html.parser")
-
-        # return the top biggest sorted elements (contentText length)
-        # excluding the script and style tags
-        content = [
-            element.get_text()
-            for element in soup.find_all(
-                ["p", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "span"]
-            )
-        ]
-        tem_sort_content = sorted(content, key=lambda x: len(x), reverse=True)[:10]
-        # sort the results by their index in the original content
-        content = sorted(tem_sort_content, key=lambda x: content.index(x))
-        # replace all \n with space and trim the text
-        content = "\n".join([text.replace("\n", " ").strip() for text in content])
-        # slice the content to max_length
-        content = content[:max_length]
+        target_url = f"{jina_base_url}{url}"
+        # Make a request to the Jina Reader API
+        response = requests.get(target_url)
+        response.raise_for_status()
+        # Extract the text content from the response content-type: text/plain
+        content = response.text
+        if max_length > 0:
+            # Adding ellipsis if the content exceeds the maximum length
+            ellipsis= ""
+            if len(content) > max_length:
+                ellipsis="..."
+            content = content[:max_length] + ellipsis
         return content
     except Exception as e:
         print(f"An error occurred: {e}")
-        return ""
+        return f"An error occurred: {e}"
+    
