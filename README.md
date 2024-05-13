@@ -4,7 +4,7 @@ Multi-Agent Collaboration: Voice-overed video slide generator - Demo application
 
 ## Architecture
 
-![Architecture](./Architecture.png)
+![Architecture](./architecture.png)
 
 ## Getting Started
 
