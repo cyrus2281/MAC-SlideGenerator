@@ -13,6 +13,7 @@ from agents.agent import agent_node, create_agent
 from agents.researchers_team.tools import scrape_webpage, search_google
 from utilities.utils import save_draft
 
+researchersMessages = []
 
 # Research team graph state
 class ResearchTeamState(TypedDict):
@@ -58,8 +59,9 @@ writer_node = functools.partial(
 
 
 def writer_researcher_edge_condition(state):
-    messages = state["messages"]
-    last_message = messages[-1]
+    global researchersMessages
+    researchersMessages = state["messages"]
+    last_message = researchersMessages[-1]
     # send the message to the researcher agent
     if "RESEARCH:" in last_message.content:
         return "Researcher"
@@ -91,6 +93,7 @@ chain = research_graph.compile()
 # and the state of the research sub-graph
 # this makes it so that the states of each graph don't get intermixed
 def enter_chain(message: str):
+    researchersMessages.append(HumanMessage(content=message))
     results = {
         "messages": [HumanMessage(content=message)],
     }

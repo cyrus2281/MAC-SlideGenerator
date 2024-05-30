@@ -13,7 +13,7 @@ import functools
 from agents.agent import agent_node, create_agent
 from agents.presenters_team.tools import generate_video_slide, merge_video_slides
 
-
+presentersMessages = []
 # Presenters team graph state
 class PresentersTeamState(TypedDict):
     # A message is added after each team member finishes
@@ -49,8 +49,9 @@ presentation_planner_node = functools.partial(agent_node, agent=presentation_pla
 
 # Define the function that determines whether to continue or not
 def should_continue(state):
-    messages = state["messages"]
-    last_message = messages[-1]
+    global presentersMessages
+    presentersMessages = state["messages"]
+    last_message = presentersMessages[-1]
     try:
         # If there are no tool calls, then we finish
         if not last_message.get('tool_calls'):
@@ -85,8 +86,9 @@ chain = presenters_graph.compile()
 # and the state of the presenters sub-graph
 # this makes it so that the states of each graph don't get intermixed
 def enter_chain(message: str):
+    presentersMessages.append(HumanMessage(content=message))
     results = {
-        "messages": [HumanMessage(content=message)],
+        "messages": presentersMessages,
     }
     return results
 

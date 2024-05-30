@@ -13,7 +13,7 @@ from agents.agent import agent_node, create_agent
 from agents.slides_team.tools import download_image, google_image_search
 from utilities.utils import save_draft
 
-
+slidesMessages = []
 # Slides team graph state
 class SlidesTeamState(TypedDict):
     # A message is added after each team member finishes
@@ -51,7 +51,7 @@ slide_planner_agent = create_agent(
     "You are a PowerPoint slide planner. You're responsible for converting the given "
     "article into slides for PowerPoint, send your output in a JSON format. An array of slides with the following keys for each element:"
     "\n- type: 'text' or 'image'"
-    "\n- content: '3 to 4 lines of content in markdown format (Use titles and bullet points) if type is text, or image path if type is image'"
+    "\n- content: '3 to 4 lines of content in markdown format (Use titles and bullet points) if type is text, or ONLY the image path if type is image'"
     "\n- note: 'What should the presenter say for this slide. Must be related to the article. (4 to 8 sentences)'"
     "\nCreate between 5 to 7 slides (At least 2 image slides). plus introduction and conclusion pages.\n"
     "\nTo achieve this task, follow these steps sequentially:"
@@ -71,8 +71,9 @@ slide_planner_agent = functools.partial(
 
 
 def planner_finder_edge_condition(state):
-    messages = state["messages"]
-    last_message = messages[-1]
+    global slidesMessages
+    slidesMessages = state["messages"]
+    last_message = slidesMessages[-1]
     # send the message to the image finder agent
     if "FIND_IMAGE:" in last_message.content:
         return "ImageFinder"
@@ -104,8 +105,9 @@ chain = slides_graph.compile()
 # and the state of the slides sub-graph
 # this makes it so that the states of each graph don't get intermixed
 def enter_chain(message: str):
+    slidesMessages.append(HumanMessage(content=message))
     results = {
-        "messages": [HumanMessage(content=message)],
+        "messages": slidesMessages,
     }
     return results
 

@@ -5,10 +5,11 @@ from utilities.utils import set_project_space
 
 load_dotenv()
 
-OPENAI_GPT_MODEL_NAME = "gpt-3.5-turbo-0125"
+# OPENAI_GPT_MODEL_NAME = "gpt-3.5-turbo-0125"
 # OPENAI_GPT_MODEL_NAME="gpt-3.5-turbo-1106"
 # OPENAI_GPT_MODEL_NAME="gpt-4-0125-preview"
 # OPENAI_GPT_MODEL_NAME="gpt-4-32k-0613"
+OPENAI_GPT_MODEL_NAME="gpt-4o"
 
 os.environ["OPENAI_GPT_MODEL_NAME"] = OPENAI_GPT_MODEL_NAME
 os.environ["USE_OPENAI_FOR_TEXT_TO_AUDIO"] = "True"
