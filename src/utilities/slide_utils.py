@@ -6,6 +6,17 @@ from html2image import Html2Image
 from utilities.utils import generate_unique_id
 
 
+hti = Html2Image()
+hti.browser.flags = [
+    '--no-sandbox',
+    '--disable-gpu',
+    '--headless',
+    '--log-level=4',
+    '--silent-debugger-extension-api',
+    '--enable-features=ConversionMeasurement,AttributionReportingCrossAppWeb',
+    '--enable-logging=null'
+]
+ 
 def render_markdown_to_image(markdown_text, output_image_path, size=(720, 480)):
     # Parse Markdown text
     html_text = markdown.markdown(markdown_text).replace("\n", "<br>")
@@ -14,7 +25,6 @@ def render_markdown_to_image(markdown_text, output_image_path, size=(720, 480)):
     if (watermark):
         html_text = f"{html_text}<div id=\"watermark\">{watermark}</div>"
     # Convert HTML to image    
-    hti = Html2Image()
     css = '''body {
         background: white; 
         height: 90%;
@@ -83,7 +93,6 @@ def render_image_inside_html(image_path, output_path, size=(720, 480)):
     }
     """
     temp_loc = generate_unique_id() + ".png"
-    hti = Html2Image()
     hti.screenshot(html_str=html_content, save_as=temp_loc, css_str=css, size=size)
     # Move the file to the output location - force overwrite
     if os.path.exists(output_path):

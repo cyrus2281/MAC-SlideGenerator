@@ -81,7 +81,7 @@ if demo["web_utils"]:
     download_image(image_search[2]["url"], "temp/imgs/test_image_3.jpg")
 
 if demo["audio_utils"]:
-    # os.environ["USE_OPENAI_FOR_TEXT_TO_AUDIO"] = "True"
+    os.environ["USE_OPENAI_FOR_TEXT_TO_AUDIO"] = "True"
     print("Running text_to_audio example 1")
     text_to_audio(
         "Hello World, this is a test audio! How do I sound?", "temp/test_audio_1.mp3"

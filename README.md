@@ -1,6 +1,6 @@
 # MAC-SlideGenerator
 
-Multi-Agent Collaboration: Voice-overed video slide generator - Demo application
+Multi-Agent Collaboration: Voice-overed video slide generator
 
 ## Architecture
 
@@ -8,15 +8,11 @@ Multi-Agent Collaboration: Voice-overed video slide generator - Demo application
 
 ## Getting Started
 
-Create a virtual environment and install the required packages:
+Install Docker on your machine and run the following command at the root of the directory.
 
 ```bash 
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+docker build -t mac-slider-generator .
 ```
-
-- Note: on windows, use `env\Scripts\activate` instead of `source env/bin/activate`
 
 Create a `.env` file in the root directory and add the following:
 
@@ -26,4 +22,17 @@ SERP_API_KEY=Your_Serp_API_Key
 LANGCHAIN_API_KEY=Your_LangChain_API_Key
 LANGCHAIN_TRACING_V2=true
 LANGCHAIN_PROJECT="Multi-agent Collaboration"
+```
+Run the following command to start the app
+
+```bash
+docker run --rm --env-file .env -it -v ${PWD}:/app mac-slider-generator
+```
+
+Further environment variables can be added to the `.env` file to customize the behavior of the app.
+
+```bash
+OPENAI_GPT_MODEL_NAME=Your_OpenAI_GPT_Model_Name
+USE_OPENAI_FOR_TEXT_TO_AUDIO=Wether_to_use_OpenAI_for_text_to_audio
+SLIDES_WATERMARK=Your_Slides_Watermark
 ```
