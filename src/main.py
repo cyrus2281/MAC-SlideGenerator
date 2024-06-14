@@ -16,6 +16,7 @@ set_project_space(project_space)
 print("Project ID:", project_id)
 print("Project Space:", project_space)
 print("Using the model:", os.getenv("OPENAI_GPT_MODEL_NAME"))
+print("Extended Slide Generation: ", os.getenv("EXTENDED_SLIDES", False))
 
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langchain_openai.chat_models import ChatOpenAI

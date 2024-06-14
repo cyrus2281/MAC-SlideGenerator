@@ -15,6 +15,7 @@ from utilities.utils import save_draft
 
 researchersMessages = []
 
+
 # Research team graph state
 class ResearchTeamState(TypedDict):
     # A message is added after each team member finishes
@@ -27,7 +28,10 @@ class ResearchTeamState(TypedDict):
     next: str
 
 
-llm = ChatOpenAI(model=os.getenv("OPENAI_GPT_MODEL_NAME"), max_tokens=2500)
+llm = ChatOpenAI(model=os.getenv("OPENAI_GPT_MODEL_NAME"))
+
+IS_EXTENDED = os.getenv("EXTENDED_SLIDES", False)
+number_of_words = "2500~3000" if IS_EXTENDED else "700~1000"
 
 # Researcher agent
 researcher_agent = create_agent(
@@ -50,7 +54,7 @@ writer_agent = create_agent(
     "You are a article writer assistant working in a team of researchers. Follow these steps sequentially:"
     "\n1. You must ask the researcher assistant to get detailed information "
     'about a topic by replying "RESEARCH: the topic you want to know more about".'
-    "\n2. Write an article of 700~1000 words on the given topic. Make sure to explain in details."
+    f"\n2. Write an article of {number_of_words} words on the given topic. Make sure to explain in details."
     "\n3. Double-check your work and make sure it's ready for publication.",
 )
 writer_node = functools.partial(

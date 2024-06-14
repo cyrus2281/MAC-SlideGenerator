@@ -72,7 +72,7 @@ def download_image(image_url, save_path):
 
 
 jina_base_url = "https://r.jina.ai/"
-def extract_webpage_contents(url: str, max_length: int = 3500) -> str:
+def extract_webpage_contents(url: str, max_length: int = 20000) -> str:
     try:
         target_url = f"{jina_base_url}{url}"
         # Make a request to the Jina Reader API

@@ -14,6 +14,8 @@ from agents.slides_team.tools import download_image, google_image_search
 from utilities.utils import save_draft
 
 slidesMessages = []
+
+
 # Slides team graph state
 class SlidesTeamState(TypedDict):
     # A message is added after each team member finishes
@@ -26,7 +28,12 @@ class SlidesTeamState(TypedDict):
     next: str
 
 
-llm = ChatOpenAI(model=os.getenv("OPENAI_GPT_MODEL_NAME"), max_tokens=2500)
+llm = ChatOpenAI(model=os.getenv("OPENAI_GPT_MODEL_NAME"))
+
+IS_EXTENDED = os.getenv("EXTENDED_SLIDES", False)
+number_of_slides = "10 to 13" if IS_EXTENDED else " 5 to 7"
+min_number_of_images = "3" if IS_EXTENDED else "2"
+number_of_slides_including_image = "12 to 15" if IS_EXTENDED else " 7 to 9"
 
 # Image Finder agent
 image_finder_agent = create_agent(
@@ -36,9 +43,9 @@ image_finder_agent = create_agent(
     "\n1. Use google image search to find relevant images for the given topic."
     "\n2. Use the download image tool to download the most relevant image. Never return the URL."
     "\n3. return the following prompt: "
-    "\n ```Here is the image you requested: \"[image path from tool]\"."
-    "\n Reply with \"FIND_IMAGE: your topic\" to search for more images.```"
-    "\nFor following topic you must first search and then you must download one image:"
+    '\n ```Here is the image you requested: "[image path from tool]".'
+    '\n Reply with "FIND_IMAGE: your topic" to search for more images.```'
+    "\nFor following topic you must first search and then you must download one image:",
 )
 image_finder_node = functools.partial(
     agent_node, agent=image_finder_agent, name="ImageFinder", team="Slides team"
@@ -53,16 +60,16 @@ slide_planner_agent = create_agent(
     "\n- type: 'text' or 'image'"
     "\n- content: '3 to 4 lines of content in markdown format (Use titles and bullet points) if type is text, or ONLY the image path if type is image'"
     "\n- note: 'What should the presenter say for this slide. Must be related to the article. (4 to 8 sentences)'"
-    "\nCreate between 5 to 7 slides (At least 2 image slides). plus introduction and conclusion pages.\n"
+    f"\nCreate between {number_of_slides} slides (At least {min_number_of_images} image slides). plus introduction and conclusion pages.\n"
     "\nTo achieve this task, follow these steps sequentially:"
     "\n1. Reply with 'FIND_IMAGE: the topic you want to find an image for.' to get an image for a slide."
     "\n - Only make one request at a time. Wait to receive the first image before making the second request."
     "\n - Example: 'FIND_IMAGE: A person holding a coffee cup'"
-    "\n2. Repeat the process until you have all the images you need. You MUST at least use 'FIND_IMAGE' for 2 images."
+    f"\n2. Repeat the process until you have all the images you need. You MUST at least use 'FIND_IMAGE' for {min_number_of_images} images."
     "\n3. Convert article to JSON format. Ensure each entry has the keys 'type', 'content', and 'note'."
-    "\n4. Expand on any points that need further explanation using your own knowledge. Ensure there are 7 to 9 slides in total."
+    f"\n4. Expand on any points that need further explanation using your own knowledge. Ensure there are {number_of_slides_including_image} slides in total."
     "\n5. Return ONLY the JSON formatted slides."
-    "\nGiven the following article, first find images for the slides, then convert the article into slides:"
+    "\nGiven the following article, first find images for the slides, then convert the article into slides:",
 )
 
 slide_planner_agent = functools.partial(

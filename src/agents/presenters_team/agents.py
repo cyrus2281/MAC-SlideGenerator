@@ -14,6 +14,8 @@ from agents.agent import agent_node, create_agent
 from agents.presenters_team.tools import generate_video_slide, merge_video_slides
 
 presentersMessages = []
+
+
 # Presenters team graph state
 class PresentersTeamState(TypedDict):
     # A message is added after each team member finishes
@@ -26,7 +28,7 @@ class PresentersTeamState(TypedDict):
     next: str
 
 
-llm = ChatOpenAI(model=os.getenv("OPENAI_GPT_MODEL_NAME"), max_tokens=2500)
+llm = ChatOpenAI(model=os.getenv("OPENAI_GPT_MODEL_NAME"))
 
 tools = [generate_video_slide, merge_video_slides]
 tool_node = ToolNode(tools)
@@ -45,7 +47,13 @@ presentation_planner_agent = create_agent(
 )
 
 
-presentation_planner_node = functools.partial(agent_node, agent=presentation_planner_agent, name="PresentationPlanner", team="Presenters team")
+presentation_planner_node = functools.partial(
+    agent_node,
+    agent=presentation_planner_agent,
+    name="PresentationPlanner",
+    team="Presenters team",
+)
+
 
 # Define the function that determines whether to continue or not
 def should_continue(state):
@@ -54,7 +62,7 @@ def should_continue(state):
     last_message = presentersMessages[-1]
     try:
         # If there are no tool calls, then we finish
-        if not last_message.get('tool_calls'):
+        if not last_message.get("tool_calls"):
             return "end"
         # Otherwise if there is, we continue
         else:

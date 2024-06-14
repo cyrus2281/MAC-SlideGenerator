@@ -35,4 +35,6 @@ Further environment variables can be added to the `.env` file to customize the b
 OPENAI_GPT_MODEL_NAME=Your_OpenAI_GPT_Model_Name
 USE_OPENAI_FOR_TEXT_TO_AUDIO=Wether_to_use_OpenAI_for_text_to_audio
 SLIDES_WATERMARK=Your_Slides_Watermark
+EXTENDED_SLIDES=true
 ```
+
