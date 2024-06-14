@@ -24,7 +24,7 @@ demo = {
     "web_utils": False,
     "audio_utils": False,
     "slide_utils": False,
-    "video_utils": False,
+    "video_utils": True,
 }
 
 if demo["web_utils"]:

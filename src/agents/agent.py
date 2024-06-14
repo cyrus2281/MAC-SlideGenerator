@@ -27,7 +27,7 @@ def create_agent(
             ]
         )
         agent = create_openai_functions_agent(llm, tools, prompt)
-        executor = AgentExecutor(agent=agent, tools=tools)
+        executor = AgentExecutor(agent=agent, tools=tools, max_iterations=50)
         return executor
     else:
         prompt = ChatPromptTemplate.from_messages(

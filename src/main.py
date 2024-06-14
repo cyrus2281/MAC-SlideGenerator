@@ -93,6 +93,7 @@ super_graph.add_conditional_edges(
 super_graph.set_entry_point("supervisor")
 super_graph = super_graph.compile()
 
+iteration_limit = 75 if os.getenv("EXTENDED_SLIDES", False) else 50
 # Getting input from console in a while loop till users enters "exit"
 prompt = "\nEnter the topic: "
 messages = []
@@ -107,7 +108,7 @@ while True:
         {
             "messages": messages,
         },
-        {"recursion_limit": 50},
+        {"recursion_limit": iteration_limit},
     ):
         if "__end__" not in state:
             print("-----")
