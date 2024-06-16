@@ -1,5 +1,6 @@
 import base64
 import os
+import shutil
 import markdown
 from html2image import Html2Image
 
@@ -52,7 +53,7 @@ def render_markdown_to_image(markdown_text, output_image_path, size=(720, 480)):
     # Move the file to the output location - force overwrite
     if os.path.exists(output_image_path):
         os.remove(output_image_path)
-    os.rename(temp_loc, output_image_path)
+    shutil.move(temp_loc, output_image_path)
     
 def render_image_inside_html(image_path, output_path, size=(720, 480)):
     if not output_path:
@@ -97,4 +98,4 @@ def render_image_inside_html(image_path, output_path, size=(720, 480)):
     # Move the file to the output location - force overwrite
     if os.path.exists(output_path):
         os.remove(output_path)
-    os.rename(temp_loc, output_path)
+    shutil.move(temp_loc, output_path)

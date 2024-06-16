@@ -32,7 +32,7 @@ def generate_video_slide(
         # Step 4 - Return the path of the generated video slide
         return f"Generated video slide at \"{video_path}\""
     except Exception as e:
-        print(f"Error generating audio: {e}")
+        print(f"Error generating video slide: {e}")
         return "Failed to generate video slide"
 
 
