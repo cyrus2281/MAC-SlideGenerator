@@ -12,13 +12,7 @@ Install Docker on your machine.
 
 ### From Docker Hub
 
-1. Pull the Docker image from Docker Hub
-
-```bash
-docker pull cyrus2281/mac-slider-generator:latest
-```
-
-2. Create a `.env` file in the root directory and add the following:
+1. Create a `.env` file in the root directory and add the following:
 
 ```bash
 OPENAI_API_KEY=Your_OpenAI_API_Key
@@ -28,18 +22,11 @@ LANGCHAIN_TRACING_V2=true
 LANGCHAIN_PROJECT="Multi-agent Collaboration"
 ```
 
-3. Create a `projects` directory in your working directory.
+2. Run the docker run command to start the container
 
-```bash
-mkdir projects
-```
+Update the `.env` path if it is not in the root directory. (Instead of an environment file, you can also pass the environment variables directly to the `docker run` command using the `-e` flag.)
 
-
-4. Run the docker run command to start the container
-
-Update the `.env` path if it is not in the root directory.
-
-Update `${PWD}/projects` to the path of the `projects` directory if it is not in the working directory.
+Update `${PWD}/projects` to the path where you want to create the projects if not current directory.
 
 ```bash
 docker run --rm --env-file .env -it -v ${PWD}/projects:/app/projects cyrus2281/mac-slider-generator:latest

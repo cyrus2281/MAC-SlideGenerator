@@ -1,7 +1,7 @@
 import os
 import time
 from dotenv import load_dotenv
-from utilities.utils import set_project_space
+from utilities.utils import set_project_space, write_project_config
 
 load_dotenv()
 
@@ -13,20 +13,32 @@ os.environ["SLIDES_WATERMARK"] = os.getenv(
     "SLIDES_WATERMARK", "MAC-Slide-Generator by Cyrus Mobini"
 )
 
+IS_EXTENDED = os.getenv("EXTENDED_SLIDES", "False").lower() == "true"
+
 # Setting up project
 project_id = int(time.time())
 project_space = os.path.join("projects", f"project_{project_id}")
 set_project_space(project_space)
-print("Project ID:", project_id)
-print("Project Space:", project_space)
-print("Using the model:", os.getenv("OPENAI_GPT_MODEL_NAME"))
-print("Extended Slide Generation: ", os.getenv("EXTENDED_SLIDES", False))
 
+project_config_description = (
+    f"Project ID: {project_id}\n"
+    f"Project Space: {project_space}\n"
+    f"Model: {os.getenv('OPENAI_GPT_MODEL_NAME')}\n"
+    f"OpenAI for text-to-speech: {os.getenv('USE_OPENAI_FOR_TEXT_TO_AUDIO')}\n"
+    f"Extended Slide Generation: {IS_EXTENDED}\n"
+    f"Slides Watermark: {os.getenv('SLIDES_WATERMARK')}\n"
+    f"Created at: {time.ctime()}\n"
+)
+write_project_config(project_config_description)
+
+
+from langchain_community.callbacks import get_openai_callback
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from langchain_openai.chat_models import ChatOpenAI
 from langgraph.graph import END, StateGraph
 from typing_extensions import TypedDict
 from typing import Annotated, List, Optional
+import shutil
 import operator
 
 from agents.agent import create_team_supervisor
@@ -97,36 +109,52 @@ super_graph.add_conditional_edges(
 super_graph.set_entry_point("supervisor")
 super_graph = super_graph.compile()
 
-IS_EXTENDED = os.getenv("EXTENDED_SLIDES", "False").lower() == "true"
 iteration_limit = 75 if IS_EXTENDED else 50
 # Getting input from console in a while loop till users enters "exit"
-prompt = "\nEnter the topic: "
+prompt = "\nEnter the topic (type 'exit' to quit program): "
 messages = []
-while True:
-    user_input = input(prompt).strip()
-    if not user_input:
-        continue
-    if user_input == "exit":
-        break
-    messages.append(HumanMessage(content=user_input))
-    for state in super_graph.stream(
-        {
-            "messages": messages,
-        },
-        {"recursion_limit": iteration_limit},
-    ):
-        if "__end__" not in state:
-            print("-----")
-            print(state)
 
-            if "Researchers_team" in state:
-                msg = state["Researchers_team"]["messages"][0].content
-                messages.append(AIMessage(content=msg, name="Researchers_team"))
-            elif "Slides_team" in state:
-                msg = state["Slides_team"]["messages"][0].content
-                messages.append(AIMessage(content=msg, name="Slides_team"))
-            elif "Presenters_team" in state:
-                msg = state["Presenters_team"]["messages"][0].content
-                messages.append(AIMessage(content=msg, name="Presenters_team"))
+with get_openai_callback() as cb:
+    while True:
+        user_input = input(prompt).strip()
+        if not user_input:
+            continue
+        if user_input == "exit":
+            if len(messages) == 0:
+                shutil.rmtree(project_space)
+                print(f"Removed project space \"{project_space}\".")
+            else:
+                project_cost = (
+                    f"\nTotal Tokens: {cb.total_tokens}\n"
+                    f"Prompt Tokens: {cb.prompt_tokens}\n"
+                    f"Completion Tokens: {cb.completion_tokens}\n"
+                    f"Total Cost (USD): ${cb.total_cost}\n"
+                )
+                write_project_config(project_cost)
+            break
+        if len(messages) == 0:
+            # Add the user input to the project config
+            write_project_config(f"\nUser Prompt: {user_input}\n", False)
 
-            prompt = "Ask a follow-up request: (Type 'exit' to leave program) "
+        messages.append(HumanMessage(content=user_input))
+        for state in super_graph.stream(
+            {
+                "messages": messages,
+            },
+            {"recursion_limit": iteration_limit},
+        ):
+            if "__end__" not in state:
+                print("-----")
+                print(state)
+
+                if "Researchers_team" in state:
+                    msg = state["Researchers_team"]["messages"][0].content
+                    messages.append(AIMessage(content=msg, name="Researchers_team"))
+                elif "Slides_team" in state:
+                    msg = state["Slides_team"]["messages"][0].content
+                    messages.append(AIMessage(content=msg, name="Slides_team"))
+                elif "Presenters_team" in state:
+                    msg = state["Presenters_team"]["messages"][0].content
+                    messages.append(AIMessage(content=msg, name="Presenters_team"))
+
+                prompt = "Ask a follow-up request: (Type 'exit' to quit program) "
