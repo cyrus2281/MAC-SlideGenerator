@@ -94,7 +94,7 @@ if demo["audio_utils"]:
     text_to_audio("I hope you liked my presentation", "temp/test_audio_3.mp3")
 
 if demo["slide_utils"]:
-    os.environ["SLIDES_WATERMARK"] = "MLC-Slide-Generator by Cyrus Mobini"
+    os.environ["SLIDES_WATERMARK"] = "MAC-Slide-Generator by Cyrus Mobini"
     markdown_text = (
         "# Effect of coffee\n"
         + "\nCoffee effect on the following parts of human body:"

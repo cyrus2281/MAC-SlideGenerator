@@ -30,7 +30,7 @@ class ResearchTeamState(TypedDict):
 
 llm = ChatOpenAI(model=os.getenv("OPENAI_GPT_MODEL_NAME"))
 
-IS_EXTENDED = os.getenv("EXTENDED_SLIDES", False)
+IS_EXTENDED = os.getenv("EXTENDED_SLIDES", "False").lower() == "true"
 number_of_words = "2500~3000" if IS_EXTENDED else "700~1000"
 
 # Researcher agent

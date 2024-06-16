@@ -30,7 +30,7 @@ class SlidesTeamState(TypedDict):
 
 llm = ChatOpenAI(model=os.getenv("OPENAI_GPT_MODEL_NAME"))
 
-IS_EXTENDED = os.getenv("EXTENDED_SLIDES", False)
+IS_EXTENDED = os.getenv("EXTENDED_SLIDES", "False").lower() == "true"
 number_of_slides = "10 to 13" if IS_EXTENDED else " 5 to 7"
 min_number_of_images = "3" if IS_EXTENDED else "2"
 number_of_slides_including_image = "12 to 15" if IS_EXTENDED else " 7 to 9"
