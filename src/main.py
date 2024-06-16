@@ -11,7 +11,7 @@ os.environ["SLIDES_WATERMARK"] = os.getenv("SLIDES_WATERMARK", "MLC-Slide-Genera
 
 # Setting up project
 project_id = int(time.time())
-project_space = os.path.join("temp", f"project_{project_id}")
+project_space = os.path.join("projects", f"project_{project_id}")
 set_project_space(project_space)
 print("Project ID:", project_id)
 print("Project Space:", project_space)
